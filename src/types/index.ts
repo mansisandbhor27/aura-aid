@@ -97,3 +97,33 @@ export interface PrivacySummary {
   hiddenByShielding: string[];
   verifiableWithoutReveal: string[];
 }
+export type DonationPrivacyMode = 'shielded' | 'public';
+
+export interface DonationFormValues {
+  amount: number;
+  privacyMode: DonationPrivacyMode;
+  shieldIdentity: boolean;
+  shieldAmount: boolean;
+  donorLabel: string;
+  note: string;
+}
+
+export interface DonationValidationResult {
+  ok: boolean;
+  errors: Partial<Record<'amount' | 'donorLabel' | 'form', string>>;
+}
+
+export interface DemoDonationReceipt {
+  receiptId: string;
+  campaignId: string;
+  campaignTitle: string;
+  amount: number;
+  privacyMode: DonationPrivacyMode;
+  shieldIdentity: boolean;
+  shieldAmount: boolean;
+  donorLabel: string | null;
+  proofHash: string;
+  createdAtLabel: string;
+  demo: true;
+}
+

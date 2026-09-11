@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { DemoDonationProvider, useDemoDonations } from './hooks/useDemoDonations.tsx';
 import { ActivityFeed } from './components/transparency/ActivityFeed.tsx';
 import { CampaignDetail } from './components/campaigns/CampaignDetail.tsx';
 import { CampaignGrid } from './components/campaigns/CampaignGrid.tsx';
@@ -13,22 +14,26 @@ import { activityFeed, ngos } from './data/mockExtra.ts';
 import { useMidnightConnection } from './services/midnight/useMidnightConnection.ts';
 import type { AppView, Campaign } from './types/index.ts';
 
-export default function App() {
+function Shell() {
   const [view, setView] = useState<AppView>('discover');
   const [selected, setSelected] = useState<Campaign | null>(null);
   const [donateTarget, setDonateTarget] = useState<Campaign | null>(null);
+  const [loading, setLoading] = useState(true);
   const { connection, simulateConnect, simulateDisconnect } = useMidnightConnection();
-  const featured = useMemo(() => campaigns.slice(0, 6), []);
-
+  const { addReceipt } = useDemoDonations();
+  const featured = useMemo(() => campaigns, []);
+  useEffect(() => {
+    const t = window.setTimeout(() => setLoading(false), 450);
+    return () => window.clearTimeout(t);
+  }, []);
   const go = (v: AppView) => {
     setView(v);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <Navbar view={view} onNavigate={go} connection={connection} onConnect={simulateConnect} onDisconnect={simulateDisconnect} />
-      <main>
+      <main id="main-content">
         {view === 'discover' ? (
           <>
             <Hero
@@ -37,29 +42,34 @@ export default function App() {
               onHowItWorks={() => go('how-it-works')}
             />
             <div id="campaigns">
-              <CampaignGrid campaigns={featured} onDonate={setDonateTarget} onSelect={setSelected} />
+              <CampaignGrid campaigns={featured} onDonate={setDonateTarget} onSelect={setSelected} loading={loading} />
             </div>
             <HowItWorks />
           </>
         ) : null}
         {view === 'transparency' ? <ActivityFeed items={activityFeed} /> : null}
         {view === 'ngos' ? <NgoCards ngos={ngos} /> : null}
-        {view === 'how-it-works' ? <HowItWorks /> : null}
+        {view === 'how-it-works' ? <HowItWorks detailed /> : null}
       </main>
       <Footer onNavigate={go} />
       {selected ? (
         <CampaignDetail
           campaign={selected}
           onClose={() => setSelected(null)}
-          onDonate={(c) => {
-            setSelected(null);
-            setDonateTarget(c);
-          }}
+          onDonate={(c) => { setSelected(null); setDonateTarget(c); }}
         />
       ) : null}
       {donateTarget ? (
-        <DonateModal campaign={donateTarget} connection={connection} onClose={() => setDonateTarget(null)} />
+        <DonateModal campaign={donateTarget} connection={connection} onClose={() => setDonateTarget(null)} onDemoDonation={addReceipt} />
       ) : null}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <DemoDonationProvider>
+      <Shell />
+    </DemoDonationProvider>
   );
 }

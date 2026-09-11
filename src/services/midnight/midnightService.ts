@@ -1,4 +1,11 @@
-import type { MidnightConnectionState, PrivacySummary } from '../../types/index.ts';
+import type {
+  Campaign,
+  DemoDonationReceipt,
+  DonationFormValues,
+  MidnightConnectionState,
+  PrivacySummary,
+} from '../../types/index.ts';
+import { shortReceiptId } from '../../utils/format.ts';
 
 /**
  * Placeholder Midnight service layer.
@@ -23,33 +30,67 @@ export interface DemoDonationPreview {
   warning: string;
 }
 
+export type DonationPreviewInput =
+  | DemoDonationIntent
+  | (DonationFormValues & { campaignId: string });
+
+function isFullForm(input: DonationPreviewInput): input is DonationFormValues & { campaignId: string } {
+  return (input as DonationFormValues).privacyMode !== undefined;
+}
+
 export function buildDonationPreview(
-  intent: DemoDonationIntent,
+  intent: DonationPreviewInput,
   _connection: MidnightConnectionState,
 ): DemoDonationPreview {
+  const shieldIdentity = isFullForm(intent)
+    ? intent.privacyMode === 'shielded' || intent.shieldIdentity
+    : intent.shieldIdentity;
+  const shieldAmount = isFullForm(intent)
+    ? intent.privacyMode === 'shielded' && intent.shieldAmount
+    : intent.shieldAmount;
   const privacy: PrivacySummary = {
     visibleToPublic: [
       'Campaign ID',
-      'Pooled donation total (no link to donor)',
-      'Zero-knowledge validity proof hash',
+      shieldAmount ? 'Pooled donation total (no link to donor)' : 'Donation amount (public mode)',
+      'Demo validity receipt hash (not a real ZK proof)',
     ],
     hiddenByShielding: [
-      ...(intent.shieldIdentity ? ['Donor wallet address', 'Donor identity'] : []),
-      ...(intent.shieldAmount ? ['Exact donation amount'] : []),
+      ...(shieldIdentity ? ['Donor wallet address', 'Donor identity'] : []),
+      ...(shieldAmount ? ['Exact donation amount'] : []),
     ],
     verifiableWithoutReveal: [
-      'Proof that amount is within valid range',
-      'Proof that funds arrived in campaign pool',
-      'Auditor-selective disclosure envelope',
+      'Demo check that amount is within valid range',
+      'Demo receipt that funds were allocated to campaign pool',
+      'Auditor-selective disclosure envelope (demo format)',
     ],
   };
 
   return {
     ok: true,
-    summary: `Demo preview for ${intent.amount} to ${intent.campaignId}. Not submitted on-chain.`,
+    summary: `Demo preview for $${intent.amount} to ${intent.campaignId}. Not submitted on-chain.`,
     privacy,
     warning:
       'Demo mode: this preview does not create a blockchain transaction. Connect a real Midnight wallet + contract to enable on-chain donations.',
+  };
+}
+
+export function createDemoReceipt(
+  campaign: Campaign,
+  values: DonationFormValues,
+): DemoDonationReceipt {
+  const shielded = values.privacyMode === 'shielded';
+  return {
+    receiptId: shortReceiptId(campaign.id),
+    campaignId: campaign.id,
+    campaignTitle: campaign.title,
+    amount: values.amount,
+    privacyMode: values.privacyMode,
+    shieldIdentity: shielded || values.shieldIdentity,
+    shieldAmount: shielded && values.shieldAmount,
+    donorLabel: shielded ? null : values.donorLabel.trim() || null,
+    proofHash: `demo-${Math.random().toString(16).slice(2, 6)}-${Date.now().toString(16).slice(-4)}`,
+    createdAtLabel: new Date().toLocaleString(),
+    demo: true,
   };
 }
 
@@ -61,3 +102,4 @@ export function getIntegrationChecklist(): string[] {
     'Stream proofs + block height from Midnight indexer',
   ];
 }
+

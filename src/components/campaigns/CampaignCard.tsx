@@ -2,7 +2,7 @@ import type { MouseEvent } from 'react';
 import { BadgeCheck, Clock, EyeOff, MapPin } from 'lucide-react';
 import type { Campaign } from '../../types/index.ts';
 import { formatUSD, progressPercent } from '../../utils/format.ts';
-import { Badge, Card, ProgressBar } from '../common/ui.tsx';
+import { Badge, Button, Card, ProgressBar } from '../common/ui.tsx';
 
 const statusTone: Record<Campaign['status'], { label: string; tone: 'emerald' | 'amber' | 'sky' }> = {
   active: { label: 'Active', tone: 'emerald' },
@@ -59,9 +59,9 @@ export function CampaignCard({ campaign, onDonate }: {
             <span key={t} className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-semibold text-slate-300">{t}</span>
           ))}
         </div>
-        <button type="button" onClick={handleDonate} className="w-full rounded-xl bg-teal-400 px-4 py-2.5 text-sm font-bold text-slate-950 transition hover:bg-teal-300">
+        <Button onClick={handleDonate} className="w-full" aria-label={`Donate privately to ${campaign.title}`}>
           Donate privately
-        </button>
+        </Button>
       </div>
     </Card>
   );
