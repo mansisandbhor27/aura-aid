@@ -11,6 +11,7 @@ export const platformStats: PlatformStats = {
 export const campaigns: Campaign[] = [
   {
     id: 'cmp-clean-water-ganges-delta',
+    ledgerId: 1,
     ngoId: 'ngo-blue-drop',
     ngoName: 'BlueDrop Foundation',
     ngoVerified: true,
@@ -56,6 +57,7 @@ export const campaigns: Campaign[] = [
   },
   {
     id: 'cmp-girls-classrooms',
+    ledgerId: 2,
     ngoId: 'ngo-lumen-edu',
     ngoName: 'Lumen Education Trust',
     ngoVerified: true,
@@ -101,6 +103,7 @@ export const campaigns: Campaign[] = [
   },
   {
     id: 'cmp-monsoon-relief',
+    ledgerId: 3,
     ngoId: 'ngo-rapid-kind',
     ngoName: 'RapidKind Relief',
     ngoVerified: true,
@@ -138,6 +141,7 @@ export const campaigns: Campaign[] = [
   },
   {
     id: 'cmp-mangrove-restore',
+    ledgerId: 4,
     ngoId: 'ngo-green-tide',
     ngoName: 'GreenTide Collective',
     ngoVerified: true,
@@ -175,6 +179,7 @@ export const campaigns: Campaign[] = [
   },
   {
     id: 'cmp-mobile-clinics',
+    ledgerId: 5,
     ngoId: 'ngo-arogya',
     ngoName: 'Arogya Mobile Health',
     ngoVerified: true,
@@ -212,6 +217,7 @@ export const campaigns: Campaign[] = [
   },
   {
     id: 'cmp-women-looms',
+    ledgerId: 6,
     ngoId: 'ngo-heritage-loom',
     ngoName: 'Heritage Loom Co-op',
     ngoVerified: false,

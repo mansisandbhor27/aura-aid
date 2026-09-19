@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { DemoDonationProvider, useDemoDonations } from './hooks/useDemoDonations.tsx';
 import { ActivityFeed } from './components/transparency/ActivityFeed.tsx';
 import { CampaignDetail } from './components/campaigns/CampaignDetail.tsx';
 import { CampaignGrid } from './components/campaigns/CampaignGrid.tsx';
@@ -12,6 +11,9 @@ import { NgoCards } from './components/ngos/NgoCards.tsx';
 import { campaigns, platformStats } from './data/mockData.ts';
 import { activityFeed, ngos } from './data/mockExtra.ts';
 import { useMidnightConnection } from './services/midnight/useMidnightConnection.ts';
+import { WalletGate } from './components/midnight/WalletGate.tsx';
+import { WalletBalanceCard } from './components/midnight/WalletBalanceCard.tsx';
+import { DeploymentPanel } from './components/midnight/DeploymentPanel.tsx';
 import type { AppView, Campaign } from './types/index.ts';
 
 function Shell() {
@@ -19,8 +21,16 @@ function Shell() {
   const [selected, setSelected] = useState<Campaign | null>(null);
   const [donateTarget, setDonateTarget] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(true);
-  const { connection, simulateConnect, simulateDisconnect } = useMidnightConnection();
-  const { addReceipt } = useDemoDonations();
+  const {
+    connection,
+    api,
+    simulateConnect,
+    simulateDisconnect,
+    deploy,
+    deploying,
+    contractAddress,
+    deploymentTxId,
+  } = useMidnightConnection();
   const featured = useMemo(() => campaigns, []);
   useEffect(() => {
     const t = window.setTimeout(() => setLoading(false), 450);
@@ -31,45 +41,53 @@ function Shell() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <Navbar view={view} onNavigate={go} connection={connection} onConnect={simulateConnect} onDisconnect={simulateDisconnect} />
-      <main id="main-content">
-        {view === 'discover' ? (
-          <>
-            <Hero
-              stats={platformStats}
-              onExplore={() => document.getElementById('campaigns')?.scrollIntoView({ behavior: 'smooth' })}
-              onHowItWorks={() => go('how-it-works')}
-            />
-            <div id="campaigns">
-              <CampaignGrid campaigns={featured} onDonate={setDonateTarget} onSelect={setSelected} loading={loading} />
-            </div>
-            <HowItWorks />
-          </>
+    <WalletGate connection={connection} onConnect={simulateConnect}>
+      <div className="min-h-screen bg-slate-950 text-slate-100">
+        <Navbar view={view} onNavigate={go} connection={connection} onConnect={simulateConnect} onDisconnect={simulateDisconnect} />
+        <main id="main-content">
+          {view === 'discover' ? (
+            <>
+              <Hero
+                stats={platformStats}
+                onExplore={() => document.getElementById('campaigns')?.scrollIntoView({ behavior: 'smooth' })}
+                onHowItWorks={() => go('how-it-works')}
+              />
+              <WalletBalanceCard api={api} />
+              {import.meta.env.DEV && (
+                <DeploymentPanel
+                  connection={connection}
+                  deploying={deploying}
+                  contractAddress={contractAddress}
+                  deploymentTxId={deploymentTxId}
+                  onDeploy={deploy}
+                />
+              )}
+              <div id="campaigns">
+                <CampaignGrid campaigns={featured} onDonate={setDonateTarget} onSelect={setSelected} loading={loading} />
+              </div>
+              <HowItWorks />
+            </>
+          ) : null}
+          {view === 'transparency' ? <ActivityFeed items={activityFeed} /> : null}
+          {view === 'ngos' ? <NgoCards ngos={ngos} /> : null}
+          {view === 'how-it-works' ? <HowItWorks detailed /> : null}
+        </main>
+        <Footer onNavigate={go} />
+        {selected ? (
+          <CampaignDetail
+            campaign={selected}
+            onClose={() => setSelected(null)}
+            onDonate={(c) => { setSelected(null); setDonateTarget(c); }}
+          />
         ) : null}
-        {view === 'transparency' ? <ActivityFeed items={activityFeed} /> : null}
-        {view === 'ngos' ? <NgoCards ngos={ngos} /> : null}
-        {view === 'how-it-works' ? <HowItWorks detailed /> : null}
-      </main>
-      <Footer onNavigate={go} />
-      {selected ? (
-        <CampaignDetail
-          campaign={selected}
-          onClose={() => setSelected(null)}
-          onDonate={(c) => { setSelected(null); setDonateTarget(c); }}
-        />
-      ) : null}
-      {donateTarget ? (
-        <DonateModal campaign={donateTarget} connection={connection} onClose={() => setDonateTarget(null)} onDemoDonation={addReceipt} />
-      ) : null}
-    </div>
+        {donateTarget ? (
+          <DonateModal campaign={donateTarget} connection={connection} api={api} contractAddress={contractAddress} onClose={() => setDonateTarget(null)} />
+        ) : null}
+      </div>
+    </WalletGate>
   );
 }
 
 export default function App() {
-  return (
-    <DemoDonationProvider>
-      <Shell />
-    </DemoDonationProvider>
-  );
+  return <Shell />;
 }

@@ -21,6 +21,12 @@ export interface Milestone {
 
 export interface Campaign {
   id: string;
+  /**
+   * Numeric campaign id on the deployed AuraAid Compact contract
+   * (`campaigns: Map<Uint<64>, Uint<64>>`). Only campaigns with a ledger id
+   * can receive real on-chain donations.
+   */
+  ledgerId?: number;
   ngoId: string;
   ngoName: string;
   ngoVerified: boolean;
