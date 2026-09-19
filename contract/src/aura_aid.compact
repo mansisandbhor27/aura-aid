@@ -1,0 +1,54 @@
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+export ledger campaignCount: Uint<64>;
+
+export ledger campaigns:
+  Map<Uint<64>, Uint<64>>;
+
+export ledger campaignBalances:
+  Map<Uint<64>, Uint<64>>;
+
+constructor() {
+  campaignCount = 0;
+}
+
+export circuit createCampaign(goalAmount_: Uint<64>): [] {
+  const goalAmount = disclose(goalAmount_);
+
+  const newId = campaignCount + 1 as Uint<64>;
+
+  campaignCount = newId;
+
+  campaigns.insert(newId, goalAmount);
+}
+
+export circuit donate(
+  campaignId_: Uint<64>,
+  amount_: Uint<64>
+): [] {
+  const campaignId = disclose(campaignId_);
+  const amount = disclose(amount_);
+
+  const exists = campaigns.member(campaignId);
+
+  if (exists) {
+    receiveUnshielded(
+      nativeToken(),
+      amount
+    );
+
+    const currentBalance =
+      campaignBalances.member(campaignId)
+        ? campaignBalances.lookup(campaignId)
+        : 0 as Uint<64>;
+
+    const newBalance = currentBalance + amount as Uint<64>;
+
+    campaignBalances.insert(
+      campaignId,
+      newBalance
+    );
+  }
+}

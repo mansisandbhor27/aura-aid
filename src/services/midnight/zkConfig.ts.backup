@@ -1,0 +1,8 @@
+import { FetchZkConfigProvider } from '@midnight-ntwrk/midnight-js-fetch-zk-config-provider';
+
+export type AuraAidCircuitId = 'createCampaign';
+
+export const auraAidZkConfig =
+  new FetchZkConfigProvider<AuraAidCircuitId>(
+    `${window.location.origin}/`,
+  );

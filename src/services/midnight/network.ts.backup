@@ -52,28 +52,3 @@ export function readPublicEnv() {
     indexerHttp: (env.VITE_MIDNIGHT_INDEXER_URL as string | undefined) ?? MIDNIGHT_ENDPOINTS.indexerHttp,
   };
 }
-
-export interface AuraAidContractAddressStatus {
-  configured: boolean;
-  address: string | null;
-  message: string;
-}
-
-export function getAuraAidContractAddressStatus(): AuraAidContractAddressStatus {
-  const raw = readPublicEnv().contractAddress;
-  const address = raw.trim();
-
-  if (!address) {
-    return {
-      configured: false,
-      address: null,
-      message: 'No AuraAid contract address configured.',
-    };
-  }
-
-  return {
-    configured: true,
-    address,
-    message: `AuraAid contract address configured: ${address}`,
-  };
-}
