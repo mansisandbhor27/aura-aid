@@ -14,16 +14,32 @@ export async function deployAuraAidContract(
 ): Promise<AuraAidDeploymentResult> {
   const providers = await createAuraAidProviders(api);
 
-  const deployed = await deployContract(providers, {
-    compiledContract: auraAidContract,
-  });
+  console.log('[AURA DEPLOY] calling deployContract...');
 
-  const contractAddress = deployed.deployTxData.public.contractAddress;
+  try {
+    const deployed = await deployContract(providers, {
+      compiledContract: auraAidContract,
+    });
 
-  const transactionId = deployed.deployTxData.public.txId;
+    console.log('[AURA DEPLOY] deployContract returned');
+    console.log('[AURA DEPLOY] deployTxData:', deployed.deployTxData);
+    console.log(
+      '[AURA DEPLOY] public deployment data:',
+      deployed.deployTxData.public,
+    );
 
-  return {
-    contractAddress,
-    transactionId,
-  };
+    const contractAddress = deployed.deployTxData.public.contractAddress;
+    const transactionId = deployed.deployTxData.public.txId;
+
+    console.log('[AURA DEPLOY] contract address:', contractAddress);
+    console.log('[AURA DEPLOY] deployment tx id:', transactionId);
+
+    return {
+      contractAddress,
+      transactionId,
+    };
+  } catch (error) {
+    console.error('[AURA DEPLOY] deployContract FAILED:', error);
+    throw error;
+  }
 }

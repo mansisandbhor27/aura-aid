@@ -69,34 +69,67 @@ export class DappConnectorWalletProvider implements WalletProvider {
     return this.keys.shieldedEncryptionPublicKey;
   }
 
-  async balanceTx(
-    tx: UnboundTransaction,
-    ttl?: Date,
-  ): Promise<FinalizedTransaction> {
-    void ttl;
+ async balanceTx(
+  tx: UnboundTransaction,
+  ttl?: Date,
+): Promise<FinalizedTransaction> {
+  void ttl;
 
-    const serialized = toHex(tx.serialize());
+  console.log('[AURA DEPLOY] balanceTx started');
 
-    const balanced = await this.api.balanceUnsealedTransaction(serialized, {
-      payFees: true,
-    });
+  const serialized = toHex(tx.serialize());
+
+  console.log(
+    '[AURA DEPLOY] calling balanceUnsealedTransaction...',
+  );
+
+  try {
+    const balanced = await this.api.balanceUnsealedTransaction(
+      serialized,
+      {
+        payFees: true,
+      },
+    );
+
+    console.log('[AURA DEPLOY] balancing completed');
 
     return deserializeFinalizedTransaction(balanced.tx);
+  } catch (error) {
+    console.error('[AURA DEPLOY] balancing FAILED:', error);
+    throw error;
   }
+}
 }
 
 export class DappConnectorMidnightProvider implements MidnightProvider {
   constructor(private readonly api: ConnectedAPI) {}
 
   async submitTx(tx: FinalizedTransaction): Promise<TransactionId> {
+    console.log('[AURA DEPLOY] submitTx started');
+
     const identifiers = tx.identifiers();
     const transactionId = identifiers[0];
+
+    console.log('[AURA DEPLOY] transaction identifier:', transactionId);
 
     if (!transactionId) {
       throw new Error('No transaction identifier was produced.');
     }
 
-    await this.api.submitTransaction(toHex(tx.serialize()));
+    const serialized = toHex(tx.serialize());
+
+    console.log('[AURA DEPLOY] calling wallet submitTransaction...');
+
+    try {
+      await this.api.submitTransaction(serialized);
+
+      console.log('[AURA DEPLOY] wallet submitTransaction completed');
+    } catch (error) {
+      console.error('[AURA DEPLOY] submitTransaction FAILED:', error);
+      throw error;
+    }
+
+    console.log('[AURA DEPLOY] submitTx completed:', transactionId);
 
     return transactionId;
   }

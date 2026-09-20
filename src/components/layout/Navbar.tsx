@@ -17,6 +17,7 @@ export function Navbar(p: {
   connection: MidnightConnectionState;
   onConnect: () => void;
   onDisconnect: () => void;
+  onDeploy: () => void;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => {
@@ -39,6 +40,13 @@ export function Navbar(p: {
           {links.map((l) => (
             <button key={l.id} type="button" onClick={() => p.onNavigate(l.id)} aria-current={p.view === l.id ? 'page' : undefined} className={cn('rounded-xl px-3.5 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300', p.view === l.id ? 'bg-white/10 text-white' : 'text-slate-400 hover:bg-white/[0.06] hover:text-white')}>{l.label}</button>
           ))}
+        <button
+  type="button"
+  onClick={p.onDeploy}
+  className="rounded-xl px-3.5 py-2 text-sm font-semibold text-cyan-300 transition hover:bg-white/[0.06] hover:text-cyan-200"
+>
+  Deploy Contract
+</button>
         </nav>
         <div className="flex items-center gap-2">
           <MidnightStatusBar connection={p.connection} onConnect={p.onConnect} onDisconnect={p.onDisconnect} />
@@ -51,6 +59,16 @@ export function Navbar(p: {
             {links.map((l) => (
               <button key={l.id} type="button" onClick={() => { p.onNavigate(l.id); setMobileOpen(false); }} aria-current={p.view === l.id ? 'page' : undefined} className={cn('rounded-xl px-3 py-2.5 text-left text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300', p.view === l.id ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/[0.06]')}>{l.label}</button>
             ))}
+            <button
+  type="button"
+  onClick={() => {
+    p.onDeploy();
+    setMobileOpen(false);
+  }}
+  className="rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-cyan-300 hover:bg-white/[0.06]"
+>
+  Deploy Contract
+</button>
           </div>
         </nav>
       ) : null}
