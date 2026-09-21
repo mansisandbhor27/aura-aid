@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api';
 import { readWalletBalances } from '../../services/midnight/walletBalance.ts';
-import { shieldOneNight } from '../../services/midnight/shielding.ts';
 
 interface WalletBalanceCardProps {
   api: ConnectedAPI | null;
@@ -28,8 +27,7 @@ export function WalletBalanceCard({ api }: WalletBalanceCardProps) {
   const [dustCap, setDustCap] = useState<bigint>(0n);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [shielding, setShielding] = useState(false);
-  const [shieldMessage, setShieldMessage] = useState<string | null>(null);
+  
 
   useEffect(() => {
     if (!api) {
@@ -161,59 +159,7 @@ export function WalletBalanceCard({ api }: WalletBalanceCardProps) {
             </div>
           </div>
         )}
-      </div>
-
-      <div className="mt-4 rounded-2xl border border-cyan-500/20 bg-slate-900/70 p-6 shadow-xl">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
-            Shielded Wallet
-          </p>
-          <h3 className="mt-1 text-lg font-bold text-white">
-            Move NIGHT to Shielded Balance
-          </h3>
-          <p className="mt-2 text-sm text-slate-400">
-            Test the real Midnight wallet flow by sending 1 NIGHT to your own shielded address.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          disabled={!api || shielding}
-          onClick={async () => {
-            if (!api) return;
-
-            try {
-              setShielding(true);
-              setShieldMessage(null);
-
-              const result = await shieldOneNight(api);
-
-              setShieldMessage(
-                `1 NIGHT submitted to your shielded address. The balance will update after the wallet/indexer processes it.`,
-              );
-
-              console.log('Shield transaction submitted:', result);
-            } catch (err) {
-              setShieldMessage(
-                err instanceof Error
-                  ? err.message
-                  : 'Shield transaction failed.',
-              );
-            } finally {
-              setShielding(false);
-            }
-          }}
-          className="mt-4 rounded-xl bg-cyan-400 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {shielding ? 'Waiting for wallet…' : 'Shield 1 NIGHT'}
-        </button>
-
-        {shieldMessage ? (
-          <p className="mt-3 text-sm text-slate-300">
-            {shieldMessage}
-          </p>
-        ) : null}
-      </div>
-    </section>
+            </div>
+    </section>        
   );
 }
