@@ -13,7 +13,7 @@ import { Hero } from './components/landing/Hero.tsx';
 import { HowItWorks } from './components/landing/HowItWorks.tsx';
 import { NgoCards } from './components/ngos/NgoCards.tsx';
 
-import { WalletGate } from './components/midnight/WalletGate.tsx';
+
 import { WalletBalanceCard } from './components/midnight/WalletBalanceCard.tsx';
 
 import { DeployContractPage } from './pages/DeployContractPage.tsx';
@@ -68,126 +68,119 @@ function AppContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  return (
-    <WalletGate
+ return (
+  <div className="min-h-screen bg-slate-950 text-slate-100">
+
+    <Navbar
+      view={view}
+      onNavigate={go}
       connection={connection}
       onConnect={simulateConnect}
-    >
-      <div className="min-h-screen bg-slate-950 text-slate-100">
+      onDisconnect={simulateDisconnect}
+      onDeploy={openDeployPage}
+    />
 
-        <Navbar
-          view={view}
-          onNavigate={go}
-          connection={connection}
-          onConnect={simulateConnect}
-          onDisconnect={simulateDisconnect}
-          onDeploy={openDeployPage}
+    <main id="main-content">
+
+      <Routes>
+
+        {/* HOME */}
+        <Route
+          path="/"
+          element={
+            <>
+              {view === 'discover' ? (
+                <>
+                  <Hero
+                    stats={platformStats}
+                    onExplore={() =>
+                      document
+                        .getElementById('campaigns')
+                        ?.scrollIntoView({
+                          behavior: 'smooth',
+                        })
+                    }
+                    onHowItWorks={() => go('how-it-works')}
+                  />
+
+                  <WalletBalanceCard api={api} />
+
+                  <CreateCampaign
+                    api={api}
+                    contractAddress={contractAddress}
+                  />
+
+                  <div id="campaigns">
+                    <CampaignGrid
+                      campaigns={featured}
+                      onDonate={setDonateTarget}
+                      onSelect={setSelected}
+                      loading={loading}
+                    />
+                  </div>
+
+                  <HowItWorks />
+                </>
+              ) : null}
+
+              {view === 'transparency' ? (
+                <ActivityFeed items={activityFeed} />
+              ) : null}
+
+              {view === 'ngos' ? (
+                <NgoCards ngos={ngos} />
+              ) : null}
+
+              {view === 'how-it-works' ? (
+                <HowItWorks detailed />
+              ) : null}
+            </>
+          }
         />
 
-        <main id="main-content">
-
-          <Routes>
-
-            {/* HOME */}
-            <Route
-              path="/"
-              element={
-                <>
-                  {view === 'discover' ? (
-                    <>
-                      <Hero
-                        stats={platformStats}
-                        onExplore={() =>
-                          document
-                            .getElementById('campaigns')
-                            ?.scrollIntoView({
-                              behavior: 'smooth',
-                            })
-                        }
-                        onHowItWorks={() =>
-                          go('how-it-works')
-                        }
-                      />
-
-                      <WalletBalanceCard api={api} />
-
-                      <CreateCampaign
-                        api={api}
-                        contractAddress={contractAddress}
-                      />
-
-                      <div id="campaigns">
-                        <CampaignGrid
-                          campaigns={featured}
-                          onDonate={setDonateTarget}
-                          onSelect={setSelected}
-                          loading={loading}
-                        />
-                      </div>
-
-                      <HowItWorks />
-                    </>
-                  ) : null}
-
-                  {view === 'transparency' ? (
-                    <ActivityFeed items={activityFeed} />
-                  ) : null}
-
-                  {view === 'ngos' ? (
-                    <NgoCards ngos={ngos} />
-                  ) : null}
-
-                  {view === 'how-it-works' ? (
-                    <HowItWorks detailed />
-                  ) : null}
-                </>
-              }
+        {/* DEPLOY CONTRACT PAGE */}
+        <Route
+          path="/deploy"
+          element={
+            <DeployContractPage
+              connection={connection}
+              deploying={deploying}
+              contractAddress={contractAddress}
+              deploymentTxId={deploymentTxId}
+              onDeploy={deploy}
             />
+          }
+        />
 
-            {/* DEPLOY CONTRACT PAGE */}
-            <Route
-              path="/deploy"
-              element={
-                <DeployContractPage
-                  connection={connection}
-                  deploying={deploying}
-                  contractAddress={contractAddress}
-                  deploymentTxId={deploymentTxId}
-                  onDeploy={deploy}
-                />
-              }
-            />
+      </Routes>
 
-          </Routes>
+    </main>
 
-        </main>
+    <Footer onNavigate={go} />
 
-        <Footer onNavigate={go} />
+    {selected ? (
+      <CampaignDetail
+        campaign={selected}
+        onClose={() => setSelected(null)}
+        onDonate={(c) => {
+          setSelected(null);
+          setDonateTarget(c);
+        }}
+      />
+    ) : null}
 
-        {selected ? (
-          <CampaignDetail
-            campaign={selected}
-            onClose={() => setSelected(null)}
-            onDonate={(c) => {
-              setSelected(null);
-              setDonateTarget(c);
-            }}
-          />
-        ) : null}
+    {donateTarget ? (
+      <DonateModal
+        campaign={donateTarget}
+        connection={connection}
+        api={api}
+        contractAddress={contractAddress}
+        onClose={() => setDonateTarget(null)}
+      />
+    ) : null}
 
-        {donateTarget ? (
-          <DonateModal
-            campaign={donateTarget}
-            connection={connection}
-            api={api}
-            contractAddress={contractAddress}
-            onClose={() => setDonateTarget(null)}
-          />
-        ) : null}
-
-      </div>
-    </WalletGate>
-  );
+  </div>
+);
 }
 
 
