@@ -77,7 +77,7 @@ export function hasWallet(): boolean {
   return listProviders().length > 0;
 }
 
-function getProvider(rdns?: string): InitialAPI | null {
+function getProvider(): InitialAPI | null {
   if (typeof window === 'undefined' || !window.midnight) {
     return null;
   }
@@ -88,16 +88,11 @@ function getProvider(rdns?: string): InitialAPI | null {
     return null;
   }
 
-  // Explicitly prefer Lace Wallet
-  const laceWallet = wallets.find(
-    (wallet) => wallet.rdns === 'io.lace.wallet'
+  // AuraAid uses 1AM wallet only
+  return (
+    wallets.find((wallet) => wallet.rdns === 'com.midnight.1am') ??
+    null
   );
-
-  if (rdns) {
-    return wallets.find((wallet) => wallet.rdns === rdns) ?? null;
-  }
-
-  return laceWallet ?? wallets[0] ?? null;
 }
 
 function normalizeError(error: unknown): string {
@@ -128,11 +123,9 @@ function isUserRejected(error: unknown): boolean {
  * The wallet connector is network-aware, so we explicitly connect to
  * Midnight Preprod instead of relying on the wallet's current network.
  */
-export async function connectWallet(
-  rdns?: string,
-): Promise<WalletResult> {
+export async function connectWallet(): Promise<WalletResult> {
   const networkId = ensurePreprodNetwork();
-  const provider = getProvider(rdns);
+  const provider = getProvider();
 
     console.log('[AuraAid] Midnight providers:', listProviders());
   console.log('[AuraAid] Selected provider:', provider);
