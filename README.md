@@ -1,51 +1,101 @@
 # AuraAid — Privacy-Preserving NGO Donation Transparency
 
-AuraAid is a decentralized transparency platform built on the **Midnight blockchain** that provides verifiable tracking of NGO donations, project allocations, itemized expenditures, and measurable impact—while safeguarding donor identity and sensitive financial data through zero-knowledge cryptography.
+AuraAid is a privacy-preserving NGO donation platform built on the **Midnight blockchain**.
 
-## Key Features
+The platform allows donors to contribute to verified NGO campaigns while keeping sensitive donor information private. Campaign and donation activity can be verified on-chain without exposing private donor data.
 
-- **Donor Privacy**: Sensitive donor identity and private witness inputs remain strictly on the donor's device. On-chain commitments anchor transactions without exposing personal details.
-- **Verifiable Fund Allocation**: Ensures that total allocated funds cannot exceed verified donations received.
-- **Expense Verification**: Itemized expenditures with cryptographic invoice hashes anchored on the Midnight ledger.
-- **Impact Tracking**: Transparent distinction between unverified self-reported impact and on-chain verified milestones.
-- **Independent Verification**: Public explorer enabling donors, auditors, and community members to cryptographically verify claims against the Midnight Preprod network.
+## 🚀 Live MVP
 
-## Tech Stack
+- **Network:** Midnight Preprod
+- **Live Demo:** ADD_PREPROD_DEMO_LINK_HERE
+- **Contract Address:** ADD_CONTRACT_ADDRESS_HERE
+- **Product X Profile:** ADD_X_PROFILE_LINK_HERE
 
-- **Blockchain**: Midnight Preprod (`networkId: 'preprod'`)
-- **Smart Contracts**: Midnight Compact Language (`language_version >= 0.23`)
-- **DApp Connector**: `@midnight-ntwrk/dapp-connector-api` & Midnight Lace Wallet
-- **Frontend**: React 18, Vite, TypeScript, Tailwind CSS
-- **Testing**: Vitest & Testing Library
+## ✨ Key Features
 
-## Getting Started
+### 🔐 Donor Privacy
 
-### Prerequisites
+Donor-sensitive information and private witness data remain on the user's side. Zero-knowledge technology allows the application to prove required conditions without unnecessarily exposing private information.
+
+### 💰 Transparent Donations
+
+Donation transactions are recorded on the Midnight blockchain and can be independently verified.
+
+### 🏛️ NGO Campaigns
+
+NGOs can create fundraising campaigns with defined campaign goals.
+
+### ✅ Verifiable On-chain Activity
+
+Campaign and donation operations are executed through the AuraAid Midnight smart contract.
+
+### 🔎 Public Transparency
+
+Users can inspect campaign and transaction information while sensitive donor information remains protected.
+
+## 🧩 How AuraAid Works
+
+```text
+User
+  │
+  ▼
+Midnight Wallet
+  │
+  ▼
+AuraAid Web Application
+  │
+  ├── Campaign Creation
+  │
+  ├── Donation
+  │
+  └── Transaction Verification
+  │
+  ▼
+AuraAid Midnight Smart Contract
+  │
+  ▼
+Midnight Preprod Network
+```
+
+## 🔄 CI/CD
+
+AuraAid uses GitHub Actions to automatically validate the project.
+
+[![AuraAid CI](https://github.com/mansisandbhor27/aura-aid/actions/workflows/ci.yml/badge.svg)](https://github.com/mansisandbhor27/aura-aid/actions/workflows/ci.yml)
+
+The CI pipeline validates the project through:
+
+- Dependency installation
+- Type checking
+- Tests
+- Production build
+
+## 🛠️ Tech Stack
+
+- **Blockchain:** Midnight Preprod
+- **Smart Contract:** Midnight Compact
+- **Privacy:** Zero-knowledge proofs
+- **Wallet:** Midnight Lace Wallet
+- **Frontend:** React 18
+- **Build Tool:** Vite
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **Testing:** Vitest + Testing Library
+- **CI/CD:** GitHub Actions
+
+## 📋 Prerequisites
 
 - Node.js >= 24.11.1
 - npm >= 10.0.0
-- Docker Desktop (for local proof server)
-- Midnight Lace Wallet Chrome Extension
+- Midnight Lace Wallet
+- Docker Desktop if required by the local proof environment
 
-### Installation
+## ⚙️ Installation
+
+Clone the repository:
 
 ```bash
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Run unit and integration tests
-npm run test
-
-# Typecheck TypeScript
-npm run typecheck
-
-# Build for production
-npm run build
+git clone https://github.com/mansisandbhor27/aura-aid.git
+cd aura-aid
 ```
 
-## License
-
-Apache-2.0
