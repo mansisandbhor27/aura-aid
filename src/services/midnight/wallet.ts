@@ -88,11 +88,16 @@ function getProvider(rdns?: string): InitialAPI | null {
     return null;
   }
 
+  // Explicitly prefer Lace Wallet
+  const laceWallet = wallets.find(
+    (wallet) => wallet.rdns === 'io.lace.wallet'
+  );
+
   if (rdns) {
     return wallets.find((wallet) => wallet.rdns === rdns) ?? null;
   }
 
-  return wallets[0] ?? null;
+  return laceWallet ?? wallets[0] ?? null;
 }
 
 function normalizeError(error: unknown): string {
@@ -128,6 +133,10 @@ export async function connectWallet(
 ): Promise<WalletResult> {
   const networkId = ensurePreprodNetwork();
   const provider = getProvider(rdns);
+
+    console.log('[AuraAid] Midnight providers:', listProviders());
+  console.log('[AuraAid] Selected provider:', provider);
+  console.log('[AuraAid] Network:', networkId);
 
   if (!provider) {
     return {
