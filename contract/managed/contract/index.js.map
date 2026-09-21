@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "file": "index.js",
+  "sourceRoot": "../../../",
+  "sources": ["contract/src/aura_aid.compact", "compiler/standard-library.compact"],
+  "names": [],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAYA;;;;;;;;;;MAIA,AAAA,cAQC;;;;;cAR6B,aAAqB;;;;;;;;;;;;;;;;;;yCAArB,aAAqB;;;;;;;;;gDAArB,aAAqB;;;OAQlD;MAED,AAAA,MA2BC;;;;;cA1BC,aAAqB;cACrB,SAAiB;;;;;;;;;;;;;;;;;;;;;;;;;yCADjB,aAAqB,+BACrB,SAAiB;;;;;;;;;wCADjB,aAAqB;wCACrB,SAAiB;;;OAyBlB;;;;;;;;;;GAvCA;EAFD;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IARA;;;;;;;;;yEAAsC;IAEtC;;;;;;;;;;yEAC0B;IAE1B;;;;;;;;;;yEAC0B;UAGxB,KAAa;IAAb;;;;;;;2HAAA,KAAa;;yEAAA;;;;;;;GACd;ECuBD,AAAA,QAA0B;kCACkB;;EA6E5C,AAAA;;;EA+MA,AAAA,gDAAiC,SAAkB;UACjD,qBAAsD;IAAtD;;;;;;;;;;;2HAAA;;;;;;2HAA8D;;;;;;;;;;;;;;;EDnThE,AAAA,iBAQC,4BAR6B,aAAqB;UAC3C,YAAkC,GAAZ,aAAW;UAEjC,OAAqC;;;;;+CAA7B;;;;;;;;;;;oHAAa;;;IAE3B;;;;;;;2HAAgB,OAAK;;yEAAR;IAEb;;;;;;;;;;2HAAiB,OAAK;;;2HAAE,YAAU;;;wEAAzB;;GACV;EAED,AAAA,SA2BC,4BA1BC,aAAqB,EACrB,SAAiB;UAEX,YAAkC,GAAZ,aAAW;UACjC,QAA0B,GAAR,SAAO;UAEzB,QAAqC,2BAA5B;;;;;;;;;;;oKAAiB,YAAU;;;;kHAAlB;QAEpB,QAAM;;;;gCAGN,QAAM;YAGF,gBAGa,2BAFjB;;;;;;;;;;;8KAAwB,YAAU;;;;4HAAlB;;uDACZ;;;;;;;;;;;;;;kJAAwB,YAAU;;;4HAAlB;;;YAGhB,YAAgD;;;;;8BAAnC,gBAAc,GAAG,QAAM;MAE1C;;;;;;;;;;6HACE,YAAU;;;6HACV,YAAU;;;0EAFI;;;GAKnB;;;;;;;;;;;;;;;;IAjDD;qCAAA;;;;;;;;;;;0GAAsC;KAAA;IAEtC;;;;;uCAAA;;;;;;;;;;;;;;;;4GAC0B;;;;;;uCAD1B;;;;;;;;;;;;4GAC0B;;;;;;;;;;;;;;uCAD1B;;;;;;;;;;;;;;;4GAC0B;;;;;;;;;;;;;;uCAD1B;;;;;;;;;;;;;;;;;4GAC0B;;;;;;;;;KAAA;IAE1B;;;;;uCAAA;;;;;;;;;;;;;;;;4GAC0B;;;;;;uCAD1B;;;;;;;;;;;;4GAC0B;;;;;;;;;;;;;;uCAD1B;;;;;;;;;;;;;;;4GAC0B;;;;;;;;;;;;;;uCAD1B;;;;;;;;;;;;;;;;;4GAC0B;;;;;;;;;KAAA;;;;;;;;;;"
+}
