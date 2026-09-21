@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { ActivityFeed } from './components/transparency/ActivityFeed.tsx';
 import { CampaignDetail } from './components/campaigns/CampaignDetail.tsx';
 import { CampaignGrid } from './components/campaigns/CampaignGrid.tsx';
-import { CreateCampaign } from './components/campaigns/CreateCampaign.tsx';
+
 import { DonateModal } from './components/donate/DonateModal.tsx';
 
 import { Footer } from './components/layout/Footer.tsx';
@@ -13,8 +13,6 @@ import { Hero } from './components/landing/Hero.tsx';
 import { HowItWorks } from './components/landing/HowItWorks.tsx';
 import { NgoCards } from './components/ngos/NgoCards.tsx';
 
-
-import { WalletBalanceCard } from './components/midnight/WalletBalanceCard.tsx';
 
 import { DeployContractPage } from './pages/DeployContractPage.tsx';
 
@@ -103,12 +101,7 @@ function AppContent() {
                     onHowItWorks={() => go('how-it-works')}
                   />
 
-                  <WalletBalanceCard api={api} />
-
-                  <CreateCampaign
-                    api={api}
-                    contractAddress={contractAddress}
-                  />
+                  
 
                   <div id="campaigns">
                     <CampaignGrid
