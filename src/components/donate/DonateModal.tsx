@@ -7,6 +7,65 @@ import { Modal, ModalHeader } from '../common/Modal.tsx';
 import { donateToCampaign, type DonateParams, type DonateResult, type DonationProgress } from '../../services/midnight/donate.ts';
 import type { ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api';
 
+const DONATION_STORAGE_KEY = 'auraaid_campaign_donations';
+
+interface SavedDonation {
+  campaignId: number;
+  amount: number;
+  txId: string;
+  createdAt: string;
+}
+
+function saveDonation(
+  campaignId: number,
+  amount: number,
+  txId: string,
+) {
+  try {
+    const raw = localStorage.getItem(DONATION_STORAGE_KEY);
+
+    let donations: SavedDonation[] = [];
+
+    if (raw) {
+      try {
+        donations = JSON.parse(raw);
+      } catch {
+        donations = [];
+      }
+    }
+
+    const donation: SavedDonation = {
+      campaignId,
+      amount,
+      txId,
+      createdAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem(
+      DONATION_STORAGE_KEY,
+      JSON.stringify([
+        ...donations,
+        donation,
+      ]),
+    );
+
+    window.dispatchEvent(
+      new CustomEvent('auraaid-donation-completed', {
+        detail: {
+          campaignId,
+          amount,
+          txId,
+        },
+      }),
+    );
+  } catch (error) {
+    console.error(
+      '[AURA DONATION] Failed to save local donation:',
+      error,
+    );
+  }
+}
+
 const QUICK = [25, 50, 100, 250];
 const FRESH: DonationFormValues = { amount: 50, privacyMode: 'shielded', shieldIdentity: true, shieldAmount: true, donorLabel: '', note: '' };
 
@@ -79,10 +138,17 @@ export function DonateModal(p: DonateModalProps) {
     };
 
     try {
-      const res = await donateToCampaign(p.api, params);
-      setResult(res);
-      setStatus('success');
-    } catch (err) {
+  const res = await donateToCampaign(p.api, params);
+
+  saveDonation(
+    p.campaign.ledgerId,
+    v.amount,
+    res.txId,
+  );
+
+  setResult(res);
+  setStatus('success');
+} catch (err) {
       const msg = err instanceof Error ? err.message : 'Donation failed.';
       setError(msg);
       setStatus('error');
