@@ -12,16 +12,30 @@ export ledger campaignBalances:
 
 constructor() {
   campaignCount = 0;
+
+  // Initial AuraAid campaigns
+  campaigns.insert(1 as Uint<64>, 180000 as Uint<64>);
+  campaigns.insert(2 as Uint<64>, 250000 as Uint<64>);
+  campaigns.insert(3 as Uint<64>, 95000 as Uint<64>);
+  campaigns.insert(4 as Uint<64>, 140000 as Uint<64>);
+  campaigns.insert(5 as Uint<64>, 120000 as Uint<64>);
+  campaigns.insert(6 as Uint<64>, 75000 as Uint<64>);
+
+  campaignCount = 6;
 }
 
 export circuit createCampaign(goalAmount_: Uint<64>): [] {
   const goalAmount = disclose(goalAmount_);
 
-  const newId = campaignCount + 1 as Uint<64>;
+  const newId =
+    campaignCount + 1 as Uint<64>;
 
   campaignCount = newId;
 
-  campaigns.insert(newId, goalAmount);
+  campaigns.insert(
+    newId,
+    goalAmount
+  );
 }
 
 export circuit donate(
@@ -31,7 +45,8 @@ export circuit donate(
   const campaignId = disclose(campaignId_);
   const amount = disclose(amount_);
 
-  const exists = campaigns.member(campaignId);
+  const exists =
+    campaigns.member(campaignId);
 
   if (exists) {
     receiveUnshielded(
@@ -44,7 +59,8 @@ export circuit donate(
         ? campaignBalances.lookup(campaignId)
         : 0 as Uint<64>;
 
-    const newBalance = currentBalance + amount as Uint<64>;
+    const newBalance =
+      currentBalance + amount as Uint<64>;
 
     campaignBalances.insert(
       campaignId,

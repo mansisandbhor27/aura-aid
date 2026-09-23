@@ -174,10 +174,39 @@ export async function donateToCampaign(
    *
    * The wallet/provider performs the unshielded transaction balancing.
    */
-  const finalized = await deployed.callTx.donate(
+  
+  let finalized;
+
+try {
+  console.log('[AURA DONATE] contractAddress:', contractAddress);
+  console.log('[AURA DONATE] campaignId:', ledgerCampaignId.toString());
+  console.log('[AURA DONATE] amount:', baseUnits.toString());
+  console.log('[AURA DONATE] Calling 1AM donate...');
+
+  finalized = await deployed.callTx.donate(
     ledgerCampaignId,
     baseUnits,
   );
+
+  console.log('[AURA DONATE] SUCCESS:', finalized);
+  console.log(
+  '[AURA DONATE] FINALIZED JSON:',
+  JSON.stringify(finalized, (_key, value) =>
+    typeof value === 'bigint' ? value.toString() : value
+  ),
+);
+
+console.log('[AURA DONATE] PUBLIC:', finalized?.public);
+} catch (error) {
+  console.error('[AURA DONATE] FAILED:', error);
+
+  if (error instanceof Error) {
+    console.error('[AURA DONATE] MESSAGE:', error.message);
+    console.error('[AURA DONATE] STACK:', error.stack);
+  }
+
+  throw error;
+}
 
   report(
     params,

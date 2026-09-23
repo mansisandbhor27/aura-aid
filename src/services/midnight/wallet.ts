@@ -142,12 +142,15 @@ export async function connectWallet(): Promise<WalletResult> {
   }
 
   try {
+    console.log('[AuraAid] Calling 1AM connect...');
     const api = await provider.connect(networkId);
+     console.log('[AuraAid] 1AM connected successfully:', api);
 
     const addressResult = await api.getUnshieldedAddress();
+ console.log('[AuraAid] Wallet address received:', addressResult);
 
     const configuration = await api.getConfiguration();
-
+console.log('[AuraAid] Wallet configuration:', configuration);
     const state: RealState = {
       provider: {
         rdns: provider.rdns,

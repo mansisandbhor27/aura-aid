@@ -1,5 +1,9 @@
 import type { ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api';
-import { findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
+import {
+  findDeployedContract,
+  getPublicStates,
+} from '@midnight-ntwrk/midnight-js-contracts';
+import { ledger } from '../../../contract/managed/contract/index.js';
 
 import { auraAidContract } from './auraAidContract.ts';
 import { createAuraAidProviders } from './providers.ts';
@@ -15,6 +19,7 @@ export interface CreateCampaignResult {
   status: string;
   contractAddress: string;
   goalAmount: number;
+   campaignId: number;
 }
 
 export const TOKEN_DECIMALS = 1_000_000n;
@@ -119,13 +124,54 @@ export async function createCampaign(
       finalized.public.blockHeight,
     );
 
+        let campaignId: number | null = null;
+
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      try {
+        const states = await getPublicStates(
+          providers.publicDataProvider,
+          contractAddress,
+        );
+
+        const state = ledger(states.contractState.data as never);
+
+        const count = Number(state.campaignCount);
+
+        if (count >= 7) {
+          campaignId = count;
+          break;
+        }
+      } catch (stateError) {
+        console.warn(
+          '[AURA CAMPAIGN] waiting for public state:',
+          stateError,
+        );
+      }
+
+      await new Promise((resolve) =>
+        setTimeout(resolve, 2000),
+      );
+    }
+
+    if (campaignId === null) {
+      throw new Error(
+        'Campaign transaction succeeded, but the new campaign ID is not available from the public ledger yet.',
+      );
+    }
+
+    console.log(
+      '[AURA CAMPAIGN] campaign ID:',
+      campaignId,
+    );
+
     return {
-      txId: finalized.public.txId,
-      blockHeight: finalized.public.blockHeight,
-      status: finalized.public.status,
-      contractAddress,
-      goalAmount: params.goalAmount,
-    };
+  txId: finalized.public.txId,
+  blockHeight: finalized.public.blockHeight,
+  status: finalized.public.status,
+  contractAddress,
+  goalAmount: params.goalAmount,
+  campaignId,
+};
   } catch (error) {
     console.error(
       '[AURA CAMPAIGN] createCampaign FAILED',
