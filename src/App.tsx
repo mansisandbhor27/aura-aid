@@ -7,48 +7,67 @@ import {
 
 import {
   BrowserRouter,
-  Routes,
   Route,
+  Routes,
   useNavigate,
 } from 'react-router-dom';
 
-import { ActivityFeed } from './components/transparency/ActivityFeed.tsx';
-import { CampaignDetail } from './components/campaigns/CampaignDetail.tsx';
-import { CampaignGrid } from './components/campaigns/CampaignGrid.tsx';
-import { DonateModal } from './components/donate/DonateModal.tsx';
+import type { Campaign } from './types/index.ts';
 
-import { Footer } from './components/layout/Footer.tsx';
 import { Navbar } from './components/layout/Navbar.tsx';
+import { Footer } from './components/layout/Footer.tsx';
 
 import { Hero } from './components/landing/Hero.tsx';
 import { HowItWorks } from './components/landing/HowItWorks.tsx';
 
-import { DeployContractPage } from './pages/DeployContractPage.tsx';
+import { CampaignDetail } from './components/campaigns/CampaignDetail.tsx';
+import { CampaignGrid } from './components/campaigns/CampaignGrid.tsx';
+
+import { DonateModal } from './components/donate/DonateModal.tsx';
+
+import { ActivityFeed } from './components/transparency/ActivityFeed.tsx';
+
 import { NgoDashboard } from './pages/NgoDashboard.tsx';
+import { DeployContractPage } from './pages/DeployContractPage.tsx';
+
+import { useMidnightConnection } from './services/midnight/useMidnightConnection.ts';
 
 import {
   campaigns as mockCampaigns,
   platformStats,
 } from './data/mockData.ts';
 
-import { activityFeed } from './data/mockExtra.ts';
+import {
+  activityFeed,
+} from './data/mockExtra.ts';
 
-import { useMidnightConnection } from './services/midnight/useMidnightConnection.ts';
 
-import type {
-  AppView,
-  Campaign,
-} from './types/index.ts';
+/* =========================================================
+   TYPES
+========================================================= */
+
+type AppView =
+  | 'discover'
+  | 'transparency'
+  | 'ngos'
+  | 'how-it-works';
 
 
 /* =========================================================
    STORAGE KEYS
 ========================================================= */
 
-const STORAGE_KEY = 'auraaid_campaigns';
+const STORAGE_KEY =
+  'auraaid_campaigns';
 
 const DONATION_STORAGE_KEY =
   'auraaid_campaign_donations';
+
+const CONTRACT_ADDRESS_STORAGE_KEY =
+  'auraaid_contract_address';
+
+const DEPLOYMENT_TX_STORAGE_KEY =
+  'auraaid_deployment_tx';
 
 const CAMPAIGN_CREATED_EVENT =
   'auraaid-campaign-created';
@@ -124,9 +143,169 @@ function AppContent() {
     simulateDisconnect,
     deploy,
     deploying,
-    contractAddress,
-    deploymentTxId,
+
+    /*
+     * IMPORTANT:
+     * This is the live value from the Midnight hook.
+     */
+    contractAddress: liveContractAddress,
+
+    deploymentTxId: liveDeploymentTxId,
   } = useMidnightConnection();
+
+
+  /* =======================================================
+     PERSIST CONTRACT ADDRESS
+  ======================================================= */
+
+  /*
+   * Restore previously deployed contract address
+   * from browser storage.
+   *
+   * This fixes:
+   *
+   * refresh page
+   *      ↓
+   * hook resets contractAddress
+   *      ↓
+   * DonateModal says "Contract not deployed"
+   *
+   * We now restore the deployed address.
+   */
+
+  const [storedContractAddress, setStoredContractAddress] =
+    useState<string | null>(() => {
+      try {
+        return (
+          localStorage.getItem(
+            CONTRACT_ADDRESS_STORAGE_KEY,
+          ) || null
+        );
+      } catch {
+        return null;
+      }
+    });
+
+
+  const [storedDeploymentTxId, setStoredDeploymentTxId] =
+    useState<string | null>(() => {
+      try {
+        return (
+          localStorage.getItem(
+            DEPLOYMENT_TX_STORAGE_KEY,
+          ) || null
+        );
+      } catch {
+        return null;
+      }
+    });
+
+
+  /*
+   * If the hook has a live address use it.
+   * Otherwise use the persisted address.
+   */
+
+  const contractAddress =
+    liveContractAddress ||
+    storedContractAddress ||
+    null;
+
+
+  const deploymentTxId =
+    liveDeploymentTxId ||
+    storedDeploymentTxId ||
+    null;
+
+
+  /* =======================================================
+     SAVE NEW DEPLOYMENT
+  ======================================================= */
+
+  useEffect(() => {
+    if (!liveContractAddress) {
+      return;
+    }
+
+    try {
+      localStorage.setItem(
+        CONTRACT_ADDRESS_STORAGE_KEY,
+        liveContractAddress,
+      );
+
+      setStoredContractAddress(
+        liveContractAddress,
+      );
+
+      console.log(
+        '[AURA DEPLOY] Contract address persisted:',
+        liveContractAddress,
+      );
+    } catch (error) {
+      console.error(
+        '[AURA DEPLOY] Failed to persist contract address:',
+        error,
+      );
+    }
+  }, [
+    liveContractAddress,
+  ]);
+
+
+  useEffect(() => {
+    if (!liveDeploymentTxId) {
+      return;
+    }
+
+    try {
+      localStorage.setItem(
+        DEPLOYMENT_TX_STORAGE_KEY,
+        liveDeploymentTxId,
+      );
+
+      setStoredDeploymentTxId(
+        liveDeploymentTxId,
+      );
+
+      console.log(
+        '[AURA DEPLOY] Deployment tx persisted:',
+        liveDeploymentTxId,
+      );
+    } catch (error) {
+      console.error(
+        '[AURA DEPLOY] Failed to persist deployment tx:',
+        error,
+      );
+    }
+  }, [
+    liveDeploymentTxId,
+  ]);
+
+
+  /* =======================================================
+     DEBUG CONTRACT STATE
+  ======================================================= */
+
+  useEffect(() => {
+    console.log(
+      '[AURA APP] Live contract:',
+      liveContractAddress,
+    );
+
+    console.log(
+      '[AURA APP] Stored contract:',
+      storedContractAddress,
+    );
+
+    console.log(
+      '[AURA APP] Active contract:',
+      contractAddress,
+    );
+  }, [
+    liveContractAddress,
+    storedContractAddress,
+    contractAddress,
+  ]);
 
 
   /* =======================================================
@@ -135,20 +314,26 @@ function AppContent() {
 
   const loadCreatedCampaigns = useCallback(() => {
     try {
+
       /* ---------------------------------------------------
          LOAD CAMPAIGNS
       --------------------------------------------------- */
 
       const raw =
-        localStorage.getItem(STORAGE_KEY);
+        localStorage.getItem(
+          STORAGE_KEY,
+        );
+
 
       if (!raw) {
         setCreatedCampaigns([]);
         return;
       }
 
+
       const saved: SavedCampaign[] =
         JSON.parse(raw);
+
 
       if (!Array.isArray(saved)) {
         setCreatedCampaigns([]);
@@ -162,41 +347,54 @@ function AppContent() {
 
       let savedDonations: SavedDonation[] = [];
 
+
       try {
         const donationRaw =
           localStorage.getItem(
             DONATION_STORAGE_KEY,
           );
 
+
         if (donationRaw) {
           const parsed =
             JSON.parse(donationRaw);
 
+
           if (Array.isArray(parsed)) {
             savedDonations =
               parsed.filter(
-                (donation): donation is SavedDonation =>
+                (
+                  donation,
+                ): donation is SavedDonation =>
                   donation !== null &&
                   typeof donation === 'object' &&
+
                   Number.isFinite(
                     Number(
-                      (donation as SavedDonation)
-                        .campaignId,
+                      (
+                        donation as SavedDonation
+                      ).campaignId,
                     ),
                   ) &&
+
                   Number.isFinite(
                     Number(
-                      (donation as SavedDonation)
-                        .amount,
+                      (
+                        donation as SavedDonation
+                      ).amount,
                     ),
                   ) &&
+
                   typeof
-                    (donation as SavedDonation)
-                      .txId === 'string',
+                    (
+                      donation as SavedDonation
+                    ).txId === 'string',
               );
           }
         }
+
       } catch (donationError) {
+
         console.warn(
           '[AURA APP] Failed loading donations:',
           donationError,
@@ -223,6 +421,7 @@ function AppContent() {
                     item.campaignId,
                 );
 
+
               const goalAmount =
                 Number(
                   item.goalAmount,
@@ -239,6 +438,7 @@ function AppContent() {
                 ) ||
                 ledgerId <= 0
               ) {
+
                 console.warn(
                   '[AURA APP] Invalid campaign ID:',
                   item,
@@ -258,6 +458,7 @@ function AppContent() {
                 ) ||
                 goalAmount <= 0
               ) {
+
                 console.warn(
                   '[AURA APP] Invalid campaign goal:',
                   item,
@@ -268,12 +469,14 @@ function AppContent() {
 
 
               /* -------------------------------------------
-                 GET DONATIONS FOR THIS CAMPAIGN
+                 GET DONATIONS
               ------------------------------------------- */
 
               const campaignDonations =
                 savedDonations.filter(
-                  (donation) =>
+                  (
+                    donation,
+                  ) =>
                     Number(
                       donation.campaignId,
                     ) === ledgerId,
@@ -281,18 +484,16 @@ function AppContent() {
 
 
               /* -------------------------------------------
-                 REMOVE DUPLICATE TX IDS
-
-                 DonateModal currently has two save
-                 paths in the stored code. Therefore
-                 we count each transaction only once.
+                 REMOVE DUPLICATE TRANSACTIONS
               ------------------------------------------- */
 
               const uniqueDonations =
                 Array.from(
                   new Map(
                     campaignDonations.map(
-                      (donation) => [
+                      (
+                        donation,
+                      ) => [
                         donation.txId,
                         donation,
                       ],
@@ -332,6 +533,7 @@ function AppContent() {
               ------------------------------------------- */
 
               return {
+
                 id:
                   item.id ||
                   `created-${ledgerId}`,
@@ -366,14 +568,17 @@ function AppContent() {
 
                 goalAmount,
 
-                /* IMPORTANT:
-                   This is now calculated from
-                   saved successful donations. */
+                /*
+                 * IMPORTANT:
+                 * Raised amount comes from
+                 * successful donation records.
+                 */
                 raisedAmount,
 
-                /* IMPORTANT:
-                   This is now calculated from
-                   successful donation transactions. */
+                /*
+                 * Number of successful
+                 * unique transactions.
+                 */
                 donorCount,
 
                 status:
@@ -412,15 +617,18 @@ function AppContent() {
       const seen =
         new Set<number>();
 
+
       for (
         const campaign of mapped
       ) {
+
         if (
           campaign.ledgerId ===
           undefined
         ) {
           continue;
         }
+
 
         if (
           seen.has(
@@ -430,9 +638,11 @@ function AppContent() {
           continue;
         }
 
+
         seen.add(
           campaign.ledgerId,
         );
+
 
         unique.push(
           campaign,
@@ -451,6 +661,7 @@ function AppContent() {
       );
 
     } catch (error) {
+
       console.error(
         '[AURA APP] Failed loading campaigns:',
         error,
@@ -458,6 +669,7 @@ function AppContent() {
 
       setCreatedCampaigns([]);
     }
+
   }, []);
 
 
@@ -467,16 +679,16 @@ function AppContent() {
 
   useEffect(() => {
 
-    /* Initial campaign load */
     loadCreatedCampaigns();
 
 
     /* -----------------------------------------------------
-       CAMPAIGN CREATED EVENT
+       CAMPAIGN CREATED
     ----------------------------------------------------- */
 
     const handleCampaignCreated =
       () => {
+
         console.log(
           '[AURA APP] Campaign created event received.',
         );
@@ -492,21 +704,16 @@ function AppContent() {
 
 
     /* -----------------------------------------------------
-       DONATION COMPLETED EVENT
+       DONATION COMPLETED
     ----------------------------------------------------- */
 
     const handleDonationCompleted =
       () => {
+
         console.log(
           '[AURA APP] Donation completed - refreshing campaigns.',
         );
 
-        /*
-         * Reload donation data immediately.
-         *
-         * This makes the card update after
-         * successful donation without refresh.
-         */
         loadCreatedCampaigns();
       };
 
@@ -529,9 +736,17 @@ function AppContent() {
         if (
           event.key ===
             STORAGE_KEY ||
+
           event.key ===
-            DONATION_STORAGE_KEY
+            DONATION_STORAGE_KEY ||
+
+          event.key ===
+            CONTRACT_ADDRESS_STORAGE_KEY ||
+
+          event.key ===
+            DEPLOYMENT_TX_STORAGE_KEY
         ) {
+
           loadCreatedCampaigns();
         }
       };
@@ -610,8 +825,10 @@ function AppContent() {
       const result: Campaign[] =
         [];
 
+
       const seenIds =
         new Set<string>();
+
 
       const seenLedgerIds =
         new Set<number>();
@@ -645,6 +862,7 @@ function AppContent() {
         if (
           campaign.ledgerId !==
             undefined &&
+
           seenLedgerIds.has(
             campaign.ledgerId,
           )
@@ -653,13 +871,16 @@ function AppContent() {
         }
 
 
-        seenIds.add(id);
+        seenIds.add(
+          id,
+        );
 
 
         if (
           campaign.ledgerId !==
             undefined
         ) {
+
           seenLedgerIds.add(
             campaign.ledgerId,
           );
@@ -692,6 +913,7 @@ function AppContent() {
         nextView,
       );
 
+
       navigate('/');
 
 
@@ -720,6 +942,7 @@ function AppContent() {
         '/deploy',
       );
 
+
       window.scrollTo({
         top: 0,
         behavior: 'smooth',
@@ -747,6 +970,8 @@ function AppContent() {
 
           title:
             campaign.title,
+
+          contractAddress,
         },
       );
 
@@ -768,6 +993,14 @@ function AppContent() {
         return;
       }
 
+
+      /*
+       * We intentionally DO NOT block here
+       * based on contractAddress.
+       *
+       * DonateModal will receive the persisted
+       * contract address.
+       */
 
       setDonateTarget(
         campaign,
@@ -829,6 +1062,7 @@ function AppContent() {
                       stats={
                         platformStats
                       }
+
                       onExplore={() =>
                         document
                           .getElementById(
@@ -841,6 +1075,7 @@ function AppContent() {
                             },
                           )
                       }
+
                       onHowItWorks={() =>
                         go(
                           'how-it-works',
@@ -857,20 +1092,25 @@ function AppContent() {
                       id="campaigns"
                       className="scroll-mt-24"
                     >
+
                       <CampaignGrid
                         campaigns={
                           featured
                         }
+
                         onDonate={
                           handleDonate
                         }
+
                         onSelect={
                           setSelected
                         }
+
                         loading={
                           loading
                         }
                       />
+
                     </div>
 
 
@@ -886,11 +1126,13 @@ function AppContent() {
 
                 {view ===
                 'transparency' ? (
+
                   <ActivityFeed
                     items={
                       activityFeed
                     }
                   />
+
                 ) : null}
 
 
@@ -900,12 +1142,14 @@ function AppContent() {
 
                 {view ===
                 'ngos' ? (
+
                   <NgoDashboard
                     api={api}
                     contractAddress={
                       contractAddress
                     }
                   />
+
                 ) : null}
 
 
@@ -915,9 +1159,11 @@ function AppContent() {
 
                 {view ===
                 'how-it-works' ? (
+
                   <HowItWorks
                     detailed
                   />
+
                 ) : null}
 
               </>
@@ -936,15 +1182,19 @@ function AppContent() {
                 connection={
                   connection
                 }
+
                 deploying={
                   deploying
                 }
+
                 contractAddress={
                   contractAddress
                 }
+
                 deploymentTxId={
                   deploymentTxId
                 }
+
                 onDeploy={
                   deploy
                 }
@@ -984,19 +1234,22 @@ function AppContent() {
 
 
       {/* =================================================
-          CAMPAIGN DETAIL MODAL
+          CAMPAIGN DETAIL
       ================================================= */}
 
       {selected ? (
+
         <CampaignDetail
           campaign={
             selected
           }
+
           onClose={() =>
             setSelected(
               null,
             )
           }
+
           onDonate={(
             campaign,
           ) => {
@@ -1010,6 +1263,7 @@ function AppContent() {
             );
           }}
         />
+
       ) : null}
 
 
@@ -1018,23 +1272,36 @@ function AppContent() {
       ================================================= */}
 
       {donateTarget ? (
+
         <DonateModal
           campaign={
             donateTarget
           }
+
           connection={
             connection
           }
-          api={api}
+
+          api={
+            api
+          }
+
+          /*
+           * IMPORTANT:
+           * This is now the persisted contract address
+           * when the live hook value is unavailable.
+           */
           contractAddress={
             contractAddress
           }
+
           onClose={() =>
             setDonateTarget(
               null,
             )
           }
         />
+
       ) : null}
 
     </div>
