@@ -11,9 +11,9 @@ The goal of AuraAid is to make charitable donations more transparent and verifia
 | Item | Details |
 |---|---|
 | Network | Midnight Preprod |
-| Live Demo | `ADD_PREPROD_DEMO_LINK_HERE` |
-| Contract Address | `ADD_CONTRACT_ADDRESS_HERE` |
-| Product X Profile | `ADD_X_PROFILE_LINK_HERE` |
+| Live Demo | `https://aura-aid-pied.vercel.app` |
+| Contract Address | ` 6afc78083dea96c04496a6de0e174c1e021e27a47f474bfbdedf91579310d4d1` |
+| Product X Profile | `https://x.com/AuraAid_NGO` |
 | GitHub | https://github.com/mansisandbhor27/aura-aid |
 
 > The live demo and contract address will be updated with the final deployed Preprod values.
