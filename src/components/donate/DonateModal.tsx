@@ -140,6 +140,41 @@ export function DonateModal(p: DonateModalProps) {
     try {
   const res = await donateToCampaign(p.api, params);
 
+  const donationRecord = {
+  campaignId: Number(
+    p.campaign.ledgerId,
+  ),
+  amount: Number(
+    v.amount,
+  ),
+  txId: res.txId,
+  createdAt:
+    new Date().toISOString(),
+};
+
+const raw =
+  localStorage.getItem(
+    'auraaid_campaign_donations',
+  );
+
+const existing = raw
+  ? JSON.parse(raw)
+  : [];
+
+localStorage.setItem(
+  'auraaid_campaign_donations',
+  JSON.stringify([
+    ...existing,
+    donationRecord,
+  ]),
+);
+
+window.dispatchEvent(
+  new Event(
+    'auraaid-donation-completed',
+  ),
+);
+
   saveDonation(
     p.campaign.ledgerId,
     v.amount,
