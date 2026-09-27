@@ -1,7 +1,8 @@
-import { Menu, ShieldCheck, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { AppView, MidnightConnectionState } from '../../types/index.ts';
 import { MidnightStatusBar } from '../midnight/MidnightStatusBar.tsx';
+import { AuraAidLogo } from '../common/AuraAidLogo.tsx';
 import { cn } from '../../utils/cn.ts';
 
 const links: Array<{ id: AppView; label: string }> = [
@@ -26,15 +27,11 @@ export function Navbar(p: {
     return () => document.removeEventListener('keydown', onKey);
   }, []);
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/85 backdrop-blur-md">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:rounded-lg focus:bg-teal-400 focus:px-3 focus:py-2 focus:text-sm focus:font-bold focus:text-slate-950">Skip to content</a>
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
-        <button type="button" onClick={() => p.onNavigate('discover')} className="flex items-center gap-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300" aria-label="AuraAid home">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-teal-300 via-emerald-400 to-cyan-500 text-slate-950"><ShieldCheck className="h-5 w-5" /></span>
-          <span className="text-left leading-tight">
-            <span className="block text-base font-extrabold tracking-tight text-white">AuraAid</span>
-            <span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-300">Shielded Giving</span>
-          </span>
+        <button type="button" onClick={() => p.onNavigate('discover')} className="group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300" aria-label="AuraAid home">
+          <AuraAidLogo size="md" />
         </button>
         <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
           {links.map((l) => (

@@ -1,36 +1,111 @@
-import { ShieldCheck } from 'lucide-react';
 import type { AppView } from '../../types/index.ts';
+import { AuraAidLogo } from '../common/AuraAidLogo.tsx';
 
 export function Footer({ onNavigate }: { onNavigate: (v: AppView) => void }) {
   return (
     <footer className="border-t border-white/10 bg-slate-950">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1.2fr_0.8fr_0.8fr]">
-        <div className="space-y-3">
-          <p className="flex items-center gap-2 font-extrabold text-white">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-teal-300 to-cyan-500 text-slate-950"><ShieldCheck className="h-4 w-4" /></span>
-            AuraAid
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-[1.3fr_0.85fr_0.85fr]">
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={() => onNavigate('discover')}
+            className="text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
+          >
+            <AuraAidLogo size="md" />
+          </button>
+          <p className="max-w-sm text-sm leading-relaxed text-slate-400">
+            Privacy-focused NGO donation platform built on Midnight Preprod. Empowering transparent charitable giving with client-side zero-knowledge proof verification.
           </p>
-          <p className="max-w-sm text-sm leading-relaxed text-slate-400">Privacy-preserving NGO donation transparency. Shield donor identity, prove every unit of impact.</p>
-          <p className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-xs leading-relaxed text-slate-500">Frontend demo foundation. Blockchain actions are disabled until real Midnight wallet + contract integration is implemented.</p>
+          <div className="flex items-center gap-3 text-xs text-slate-400">
+            <a
+              href="https://x.com/AuraAid_NGO"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-teal-300 transition hover:text-teal-200"
+            >
+              X (@AuraAid_NGO)
+            </a>
+            <span>•</span>
+            <a
+              href="https://github.com/mansisandbhor27/aura-aid"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-300 transition hover:text-white"
+            >
+              GitHub
+            </a>
+            <span>•</span>
+            <a
+              href="https://preprod.midnightexplorer.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-300 transition hover:text-white"
+            >
+              Preprod Explorer
+            </a>
+          </div>
         </div>
-        <nav aria-label="Platform">
+
+        <nav aria-label="Platform navigation">
           <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Platform</p>
-          <div className="mt-3 grid gap-2 text-sm">
-            <button type="button" onClick={() => onNavigate('discover')} className="w-fit text-left text-slate-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300">Discover campaigns</button>
-            <button type="button" onClick={() => onNavigate('transparency')} className="w-fit text-left text-slate-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300">Transparency feed</button>
-            <button type="button" onClick={() => onNavigate('ngos')} className="w-fit text-left text-slate-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300">Verified NGOs</button>
+          <div className="mt-3 grid gap-2.5 text-sm">
+            <button
+              type="button"
+              onClick={() => onNavigate('discover')}
+              className="w-fit text-left text-slate-300 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
+            >
+              Discover campaigns
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigate('transparency')}
+              className="w-fit text-left text-slate-300 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
+            >
+              Transparency & Activity
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigate('ngos')}
+              className="w-fit text-left text-slate-300 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
+            >
+              NGO Dashboard
+            </button>
           </div>
         </nav>
-        <nav aria-label="Trust">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Trust</p>
-          <div className="mt-3 grid gap-2 text-sm">
-            <button type="button" onClick={() => onNavigate('how-it-works')} className="w-fit text-left text-slate-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300">How shielding works</button>
-            <span className="text-slate-500">Auditor access (coming soon)</span>
-            <span className="text-slate-500">Verification policy (coming soon)</span>
+
+        <nav aria-label="Resources navigation">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Resources</p>
+          <div className="mt-3 grid gap-2.5 text-sm">
+            <button
+              type="button"
+              onClick={() => onNavigate('how-it-works')}
+              className="w-fit text-left text-slate-300 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300"
+            >
+              How it works
+            </button>
+            <a
+              href="https://midnight-tmnight-preprod.nethermind.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-fit text-left text-slate-300 transition hover:text-white"
+            >
+              Midnight Faucet
+            </a>
+            <a
+              href="https://github.com/mansisandbhor27/aura-aid/blob/main/docs/USAGE.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-fit text-left text-teal-300 transition hover:text-teal-200"
+            >
+              Documentation (USAGE.md)
+            </a>
           </div>
         </nav>
       </div>
-      <div className="border-t border-white/10 py-4 text-center text-xs text-slate-500">AuraAid demo UI • No real Midnight transactions yet • Built with React + Tailwind</div>
+
+      <div className="border-t border-white/10 py-5 text-center text-xs text-slate-500">
+        AuraAid MVP • Powered by Midnight Blockchain Preprod Network • Contract: <code className="font-mono text-slate-400">6afc78083dea96c0...310d4d1</code>
+      </div>
     </footer>
   );
 }

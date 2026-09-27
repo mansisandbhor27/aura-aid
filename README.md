@@ -1,143 +1,191 @@
 # 🌙 AuraAid — Privacy-Preserving NGO Donation Platform
 
-AuraAid is a privacy-preserving NGO donation platform built on the **Midnight blockchain**.
+[![AuraAid CI](https://github.com/mansisandbhor27/aura-aid/actions/workflows/ci.yml/badge.svg)](https://github.com/mansisandbhor27/aura-aid/actions/workflows/ci.yml)
 
-The goal of AuraAid is to make charitable donations more transparent and verifiable while protecting sensitive donor information through Midnight's privacy-focused architecture and zero-knowledge technology.
+AuraAid is a privacy-focused NGO donation platform built on the **Midnight blockchain Preprod network**.
+
+The platform enables charitable organizations to register fundraising campaigns and accept transparent donations in native NIGHT tokens while protecting donor off-chain personal identity through client-side zero-knowledge proof generation.
 
 ---
 
-## 🚀 Live MVP
+## 🚀 Live MVP & Network Details
 
 | Item | Details |
 |---|---|
-| Network | Midnight Preprod |
-| Live Demo | `https://aura-aid-pied.vercel.app` |
-| Contract Address | ` 6afc78083dea96c04496a6de0e174c1e021e27a47f474bfbdedf91579310d4d1` |
-| Product X Profile | `https://x.com/AuraAid_NGO` |
-| GitHub | https://github.com/mansisandbhor27/aura-aid |
-
-> The live demo and contract address will be updated with the final deployed Preprod values.
-
----
-
-# 🎯 Problem
-
-Traditional NGO donation platforms often require donors to trust centralized systems with donation records and personal information.
-
-This creates several challenges:
-
-- Limited transparency around donation activity
-- Centralized handling of sensitive information
-- Difficulty independently verifying transactions
-- Reduced privacy for donors
-- Limited connection between donation records and blockchain verification
-
-AuraAid explores how blockchain and zero-knowledge technology can address these problems.
+| **Network** | Midnight Preprod |
+| **Live Demo** | [https://aura-aid-pied.vercel.app](https://aura-aid-pied.vercel.app) |
+| **Deployed Contract Address** | `6afc78083dea96c04496a6de0e174c1e021e27a47f474bfbdedf91579310d4d1` |
+| **Explorer Link** | [View Contract on Midnight Explorer](https://preprod.midnightexplorer.com/contract/6afc78083dea96c04496a6de0e174c1e021e27a47f474bfbdedf91579310d4d1) |
+| **Product X Profile** | [https://x.com/AuraAid_NGO](https://x.com/AuraAid_NGO) |
+| **GitHub Repository** | [https://github.com/mansisandbhor27/aura-aid](https://github.com/mansisandbhor27/aura-aid) |
+| **User & Developer Guide** | [docs/USAGE.md](docs/USAGE.md) |
 
 ---
 
-# 💡 Solution
+## 🎯 The Problem
 
-AuraAid provides a blockchain-based donation workflow where:
+Traditional donation platforms present challenges for both donors and NGOs:
 
-1. An NGO creates a fundraising campaign.
-2. The campaign is recorded through the AuraAid Midnight smart contract.
-3. A donor connects a compatible Midnight wallet.
-4. The donor selects a campaign.
-5. The donation transaction is submitted through the Midnight network.
-6. The application updates the campaign's donation information.
-7. Transaction information can be used for verification while sensitive donor information remains protected.
+- **Personal Data Exposure**: Donors must often surrender sensitive personal identifying information (PII) including physical addresses, email addresses, and phone numbers.
+- **Centralized Custody & Tracking**: Centralized intermediaries maintain non-verifiable ledgers with high processing fees.
+- **Verification Gaps**: Difficulty independently verifying that funds were received by legitimate NGO campaigns on-chain.
 
 ---
 
-# ✨ Key Features
+## 💡 The Solution
 
-## 🔐 Privacy-Preserving Donations
+AuraAid leverages Midnight's zero-knowledge capabilities and smart contracts to create a verifiable donation workflow:
 
-AuraAid is designed around Midnight's privacy-focused architecture.
-
-Sensitive information and private witness data remain associated with the user's local/private state instead of being unnecessarily exposed publicly.
-
----
-
-## 🏛️ NGO Campaign Creation
-
-NGOs can create fundraising campaigns by providing:
-
-- Campaign title
-- Campaign description
-- Fundraising goal
-
-Campaign creation is performed through the AuraAid Midnight smart contract.
+1. **NGO Campaign Registration**: NGOs create fundraising initiatives recorded on-chain via the Compact smart contract (`createCampaign`).
+2. **Client-Side ZK Proving**: Donors generate zero-knowledge validity proofs locally using the Midnight Lace wallet (`keys/donate.prover`, `zkir/donate.bzkir`).
+3. **Transparent Accounting**: The smart contract updates campaign balances on the public ledger (`campaignBalances`), ensuring real-time auditability.
+4. **Donor Identity Protection**: No donor PII (names, emails, IP addresses) is submitted to or stored on the blockchain.
 
 ---
 
-## 💰 Blockchain Donations
+## ✨ Key Features
 
-Donors can contribute to campaigns through the Midnight network.
+### 🔐 Zero-Knowledge Verifiable Donations
+- Client-side zero-knowledge proofs verify transaction validity before broadcast.
+- Donor wallet private keys and seed phrases remain isolated in the Midnight Lace wallet.
+- No donor personal data or off-chain credentials are stored on the Midnight ledger.
 
-Each successful donation produces a transaction identifier that can be used for verification.
+### 🏛️ On-Chain Campaign Creation
+- NGOs register campaigns with title, description, and fundraising goals.
+- Goal amounts are recorded on-chain via the `createCampaign` circuit.
+- Real-time indexing maps on-chain campaign IDs to frontend discovery cards.
 
----
+### 💰 Direct Blockchain Donations
+- Native NIGHT token donations through Midnight Preprod.
+- Each contribution executes through the `donate` circuit and generates a verifiable transaction hash (`txId`).
 
-## 📊 Campaign Progress
+### 📊 Transparent Campaign Balance Tracking
+- Smart contract maintains on-chain balance maps (`campaignBalances`).
+- Campaign progress percentages update dynamically from on-chain state and local indexer events.
 
-Campaign pages display fundraising progress based on successful donation records.
+### 🔎 Independent Transaction Verification
+- Every donation produces a block height and transaction hash verifiable on the Midnight Explorer.
+- Activity feed provides a chronological audit log of all platform donations.
 
-The application maintains campaign-level donation information and updates the displayed amount after successful transactions.
-
----
-
-## 🔎 Transaction Verification
-
-AuraAid records relevant transaction identifiers so that blockchain activity can be independently inspected and verified.
-
----
-
-## 🦾 NGO Dashboard
-
-The application provides an NGO dashboard for campaign-related information and blockchain-connected functionality.
-
----
-
-## 🔗 Persistent Contract Configuration
-
-The deployed AuraAid contract address is persisted in browser storage.
-
-This allows the application to continue using the deployed contract after a browser refresh instead of requiring a new deployment every time.
+### 🔗 Persistent Contract Configuration
+- Deployed contract address is preserved across browser sessions via local storage.
+- Custom deployment interface allows deploying new contract instances to Preprod when needed.
 
 ---
 
-# 🧩 How AuraAid Works
+## 🧩 Architecture & Workflow
 
 ```text
-                    ┌─────────────────────┐
-                    │       Donor         │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │   Midnight Wallet   │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-              ┌────────────────────────────────┐
-              │       AuraAid Web App          │
-              │                                │
-              │  • Campaign Creation           │
-              │  • Campaign Discovery          │
-              │  • Donations                   │
-              │  • Campaign Progress           │
-              │  • Transaction Information     │
-              └───────────────┬────────────────┘
-                              │
-                              ▼
-              ┌────────────────────────────────┐
-              │   AuraAid Midnight Contract   │
-              └───────────────┬────────────────┘
-                              │
-                              ▼
-                 ┌─────────────────────────┐
-                 │   Midnight Preprod      │
-                 │        Network          │
-                 └─────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                      Donor / NGO                        │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│             Midnight Lace Wallet (Preprod)              │
+│  • Private Key & Seed Protection                        │
+│  • Client-Side ZK Proof Generation (Prover & ZKIR)      │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│                 AuraAid Web Application                 │
+│  • Campaign Discovery & Filtering                       │
+│  • NGO Dashboard & Campaign Creator                     │
+│  • Real-Time Activity & Transparency Feed               │
+│  • On-Chain Balance Reader (@midnight-ntwrk/midnight-js)│
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│             AuraAid Compact Smart Contract              │
+│  • export ledger campaignCount: Uint<64>                │
+│  • export ledger campaigns: Map<Uint<64>, Uint<64>>     │
+│  • export ledger campaignBalances: Map<Uint<64>,Uint<64>│
+│  • export circuit createCampaign(goalAmount_)           │
+│  • export circuit donate(campaignId_, amount_)          │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│                 Midnight Preprod Network                │
+│  • RPC: https://rpc.preprod.midnight.network            │
+│  • Indexer: https://indexer.preprod.midnight.network    │
+│  • Explorer: https://preprod.midnightexplorer.com       │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🔒 Privacy Model & On-Chain Analysis
+
+To maintain technical accuracy and avoid overclaiming privacy capabilities:
+
+- **What is Public on Ledger**:
+  - Registered campaign count (`campaignCount`).
+  - Target fundraising goals (`campaigns`).
+  - Accumulated campaign balances (`campaignBalances`).
+  - Disclosed parameters in `createCampaign` (goal amount) and `donate` (campaign ID and donation amount) for on-chain fund transfer and accounting.
+  - Transaction identifiers (`txId`) and block numbers.
+- **What is Protected / Private**:
+  - Donor personal identifying information (real name, email, IP address, street address) is never requested by or stored on the ledger.
+  - Wallet private keys, shielding keys, and seed phrases remain securely inside the Midnight Lace wallet.
+  - Zero-knowledge proof execution occurs on the client device prior to submission.
+
+---
+
+## 🛠️ Local Development & Setup
+
+### Prerequisites
+- **Node.js**: `20.x` or `22.x` (LTS)
+- **npm**: `10.x` or later
+- **Midnight Lace Extension**: Configured for Midnight Preprod
+
+### Installation
+
+```bash
+# 1. Clone repository
+git clone https://github.com/mansisandbhor27/aura-aid.git
+cd aura-aid
+
+# 2. Install dependencies
+npm ci
+
+# 3. Start local development server
+npm run dev
+```
+
+### Verification & Testing Commands
+
+```bash
+# Run TypeScript type check
+npm run typecheck
+
+# Run unit tests
+npm test
+
+# Build production bundle
+npm run build
+```
+
+---
+
+## 📖 Detailed Documentation
+
+For a comprehensive walkthrough of wallet configuration, Preprod faucet funding, campaign lifecycle, and smart contract circuits, see [docs/USAGE.md](docs/USAGE.md).
+
+---
+
+## 🌐 Official Channels
+
+- **Product X (Twitter)**: [https://x.com/AuraAid_NGO](https://x.com/AuraAid_NGO)
+- **GitHub Repository**: [https://github.com/mansisandbhor27/aura-aid](https://github.com/mansisandbhor27/aura-aid)
+- **Midnight Testnet Faucet**: [https://midnight-tmnight-preprod.nethermind.dev](https://midnight-tmnight-preprod.nethermind.dev)
+
+---
+
+## ⚠️ Limitations & Testnet Disclaimer
+
+- **Testnet Environment**: AuraAid operates on the Midnight Preprod testnet. All tokens used are testnet NIGHT (tNIGHT) without real monetary value.
+- **Seed Campaigns**: Initial campaign entries (IDs 1 through 6) are seeded in the contract constructor for demonstration purposes.
+- **Network Latency**: Zero-knowledge proof generation and Preprod block confirmation typically require 10–30 seconds.

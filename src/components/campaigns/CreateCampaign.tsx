@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import type { ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api';
-
 import { createCampaign } from '../../services/midnight/createCampaign.ts';
+import { Button } from '../common/ui.tsx';
+import { ExternalLink, Layers, ShieldCheck } from 'lucide-react';
 
 interface CreateCampaignProps {
   api: ConnectedAPI | null;
@@ -47,7 +48,7 @@ export function CreateCampaign({
     }
 
     if (!api) {
-      setMessage('Connect your Midnight wallet first.');
+      setMessage('Connect your Midnight Lace wallet first.');
       return;
     }
 
@@ -65,7 +66,7 @@ export function CreateCampaign({
 
     try {
       setLoading(true);
-      setMessage('Creating campaign on Midnight...');
+      setMessage('Generating client-side ZK proof and submitting createCampaign circuit...');
 
       const result = await createCampaign(api, {
         contractAddress,
@@ -73,8 +74,8 @@ export function CreateCampaign({
       });
 
       const newCampaign: SavedCampaign = {
-  id: crypto.randomUUID(),
-  campaignId: result.campaignId,
+        id: crypto.randomUUID(),
+        campaignId: result.campaignId,
         title: title.trim(),
         description: description.trim(),
         goalAmount: result.goalAmount,
@@ -83,7 +84,6 @@ export function CreateCampaign({
       };
 
       const existingRaw = localStorage.getItem(STORAGE_KEY);
-
       let existingCampaigns: SavedCampaign[] = [];
 
       if (existingRaw) {
@@ -96,10 +96,7 @@ export function CreateCampaign({
 
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify([
-          newCampaign,
-          ...existingCampaigns,
-        ]),
+        JSON.stringify([newCampaign, ...existingCampaigns]),
       );
 
       window.dispatchEvent(
@@ -107,9 +104,8 @@ export function CreateCampaign({
       );
 
       setTxId(result.txId);
-
       setMessage(
-        `Campaign "${newCampaign.title}" created successfully.`,
+        `Campaign #${result.campaignId} ("${newCampaign.title}") registered on Midnight Preprod!`,
       );
 
       setTitle('');
@@ -117,7 +113,6 @@ export function CreateCampaign({
       setGoal('');
     } catch (error) {
       console.error('[CREATE CAMPAIGN UI] error:', error);
-
       setMessage(
         error instanceof Error
           ? error.message
@@ -129,40 +124,39 @@ export function CreateCampaign({
   };
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-8">
-      <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-
+    <section className="mx-auto max-w-5xl">
+      <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 sm:p-8 backdrop-blur-md shadow-2xl">
         {/* HEADER */}
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-teal-300">
-            NGO
-          </p>
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-teal-300">
+            <ShieldCheck className="h-4 w-4" />
+            <span>On-Chain Registration</span>
+          </div>
 
           <h2 className="mt-2 text-2xl font-extrabold text-white">
-            Create Campaign
+            Register New Fundraising Campaign
           </h2>
 
-          <p className="mt-2 text-sm text-slate-400">
-            Create a fundraising campaign for your NGO.
+          <p className="mt-1 text-sm text-slate-400">
+            Submits a zero-knowledge circuit transaction to register the campaign goal on the Midnight Preprod ledger.
           </p>
         </div>
 
         {/* TITLE */}
-        <div className="mt-5">
+        <div className="mt-6">
           <label
             htmlFor="campaign-title"
-            className="text-sm font-semibold text-slate-300"
+            className="text-xs font-bold uppercase tracking-wider text-slate-300"
           >
             Campaign Title
           </label>
-
           <input
             id="campaign-title"
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Example: Help Flood Victims"
-            className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-teal-300"
+            placeholder="e.g. Solar Microgrids for Rural Clinics"
+            className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-teal-300"
           />
         </div>
 
@@ -170,18 +164,17 @@ export function CreateCampaign({
         <div className="mt-4">
           <label
             htmlFor="campaign-description"
-            className="text-sm font-semibold text-slate-300"
+            className="text-xs font-bold uppercase tracking-wider text-slate-300"
           >
-            Short Description
+            Campaign Summary & Deliverables
           </label>
-
           <textarea
             id="campaign-description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            placeholder="Briefly explain what this campaign is for..."
-            className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-teal-300"
+            placeholder="Describe the initiative impact, target community, and milestone deliverables..."
+            className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-teal-300"
           />
         </div>
 
@@ -189,53 +182,69 @@ export function CreateCampaign({
         <div className="mt-4">
           <label
             htmlFor="campaign-goal"
-            className="text-sm font-semibold text-slate-300"
+            className="text-xs font-bold uppercase tracking-wider text-slate-300"
           >
-            Fundraising Goal
+            Target Fundraising Goal (USD / NIGHT equivalent)
           </label>
-
           <input
             id="campaign-goal"
             type="number"
-            min="0"
-            step="0.01"
+            min="1"
+            step="1"
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
-            placeholder="Enter goal amount"
-            className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-teal-300"
+            placeholder="e.g. 50000"
+            className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-teal-300"
           />
         </div>
 
         {/* BUTTON */}
-        <button
-          type="button"
-          onClick={handleCreate}
-          disabled={loading}
-          className="mt-5 w-full rounded-xl bg-teal-400 px-5 py-3 font-bold text-slate-950 transition hover:bg-teal-300 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {loading ? 'Creating Campaign...' : 'Create Campaign'}
-        </button>
+        <div className="mt-6">
+          <Button
+            onClick={handleCreate}
+            disabled={loading}
+            className="w-full justify-center py-3 text-sm font-bold shadow-lg shadow-teal-500/10"
+          >
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <Layers className="h-4 w-4 animate-spin" />
+                Submitting createCampaign Proof...
+              </span>
+            ) : (
+              'Create Campaign On-Chain'
+            )}
+          </Button>
+        </div>
 
         {/* MESSAGE */}
         {message ? (
-          <div className="mt-4 rounded-xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-300">
+          <div className="mt-4 rounded-xl border border-white/10 bg-slate-950/80 p-4 text-xs font-medium text-slate-300 leading-relaxed">
             {message}
           </div>
         ) : null}
 
         {/* TRANSACTION */}
         {txId ? (
-          <div className="mt-4 rounded-xl border border-emerald-900/50 bg-emerald-950/20 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
-              Transaction ID
-            </p>
-
-            <p className="mt-2 break-all font-mono text-xs text-slate-300">
+          <div className="mt-4 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 p-4">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-bold uppercase tracking-wider text-emerald-300">
+                On-Chain Transaction Confirmed
+              </p>
+              <a
+                href={`https://preprod.midnightexplorer.com/tx/${txId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-teal-300 hover:text-teal-200"
+              >
+                <span>View on Explorer</span>
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
+            <p className="mt-2 break-all font-mono text-xs text-white">
               {txId}
             </p>
           </div>
         ) : null}
-
       </div>
     </section>
   );
